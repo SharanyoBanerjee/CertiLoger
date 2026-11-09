@@ -1,0 +1,16 @@
+// This schema will be populated in commit 5 (feat(auth): add prisma schema, seed data, login and role middleware)
+// See docs/Architecture.md section 5 for the full schema design
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Placeholder model to allow prisma generate to work
+model Placeholder {
+  id String @id @default(uuid())
+}
