@@ -1,6 +1,3 @@
-// This schema will be populated in commit 5 (feat(auth): add prisma schema, seed data, login and role middleware)
-// See docs/Architecture.md section 5 for the full schema design
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,7 +7,104 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Placeholder model to allow prisma generate to work
-model Placeholder {
-  id String @id @default(uuid())
+enum Role {
+  NETWORK_ADMIN
+  INSTITUTION_ADMIN
+  ISSUER
+  HOLDER
+  AUDITOR
+}
+
+enum KeyStatus {
+  ACTIVE
+  RETIRED
+  COMPROMISED
+}
+
+enum CertStatus {
+  PENDING
+  ISSUED
+  REVOKED
+  FAILED
+}
+
+model Institution {
+  id        String   @id @default(cuid())
+  name      String
+  status    String   @default("ACTIVE")
+  createdAt DateTime @default(now())
+  users     User[]
+  keys      IssuerKey[]
+  certs     Certificate[]
+}
+
+model User {
+  id            String   @id @default(cuid())
+  institutionId String?
+  institution   Institution? @relation(fields: [institutionId], references: [id])
+  name          String
+  email         String   @unique
+  passwordHash  String
+  role          Role
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  auditLogs     AuditLog[]
+}
+
+model IssuerKey {
+  keyId         String   @id
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id])
+  publicKeyPem  String
+  status        KeyStatus @default(ACTIVE)
+  validFrom     DateTime @default(now())
+}
+
+model Certificate {
+  id            String     @id @default(cuid())
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id])
+  holderName    String
+  qualification String
+  grade         String?
+  issuedAt      DateTime?
+  expiresAt     DateTime?
+  documentHash  String?
+  keyId         String?
+  filePath      String?
+  txId          String?
+  status        CertStatus @default(PENDING)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  events        CertificateEvent[]
+}
+
+model CertificateEvent {
+  id            String   @id @default(cuid())
+  certificateId String
+  certificate   Certificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
+  type          String
+  actorId       String
+  reasonCode    String?
+  txId          String?
+  at            DateTime @default(now())
+}
+
+model AuditLog {
+  id      String   @id @default(cuid())
+  userId  String?
+  user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action  String
+  meta    Json?
+  at      DateTime @default(now())
+}
+
+model LedgerEntry {
+  seq       Int      @id @default(autoincrement())
+  type      String
+  subjectId String
+  payload   Json
+  prevHash  String
+  entryHash String   @unique
+  at        DateTime @default(now())
 }

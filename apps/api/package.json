@@ -10,10 +10,10 @@
     "test": "vitest run",
     "lint": "eslint src --ext ts",
     "format": "prettier --write src",
-    "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio"
+    "db:generate": "prisma generate --schema=../../prisma/schema.prisma",
+    "db:migrate": "prisma migrate dev --schema=../../prisma/schema.prisma",
+    "db:seed": "tsx ../../prisma/seed.ts",
+    "db:studio": "prisma studio --schema=../../prisma/schema.prisma"
   },
   "dependencies": {
     "@prisma/client": "^5.10.0",

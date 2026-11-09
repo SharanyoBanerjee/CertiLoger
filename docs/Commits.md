@@ -6,7 +6,7 @@
 | 2  | Sharanyo  | chore: scaffold monorepo, tooling, docker compose and env example  | 1     | merged  |
 | 3  | Teammate  | feat(number-theory): add gcd, extended gcd and modular inverse     | 2     | merged  |
 | 4  | Teammate  | feat(number-theory): add totient, fast modular exponentiation and euler/fermat checks | 3     | merged  |
-| 5  | Sharanyo  | feat(auth): add prisma schema, seed data, login and role middleware | 2,4   | todo   |
+| 5  | Sharanyo  | feat(auth): add prisma schema, seed data, login and role middleware | 2,4   | merged  |
 | 6  | Sharanyo  | feat(institutions): add institution and signing key registration   | 5     | todo   |
 | 7  | Teammate  | feat(number-theory): add primality tests, toy rsa and lab api endpoints | 4     | todo   |
 | 8  | Teammate  | feat(crypto): add sha-256 hashing and rsa-pss signing and verification | 2     | todo   |

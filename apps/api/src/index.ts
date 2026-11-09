@@ -1,5 +1,8 @@
 import express from 'express';
 import cors from 'cors';
+import authRouter from './routes/auth.js';
+import { errorHandler } from './middleware/errorHandler.js';
+import { env } from './config/env.js';
 
 const app = express();
 
@@ -14,7 +17,11 @@ app.get('/api', (_req, res) => {
   res.json({ name: 'CertiLedger API', version: '0.0.0' });
 });
 
-const PORT = process.env.PORT || 3000;
+app.use('/api/auth', authRouter);
+
+app.use(errorHandler);
+
+const PORT = env.PORT;
 
 app.listen(PORT, () => {
   console.log(`API listening on http://localhost:${PORT}`);
