@@ -1,9 +1,9 @@
 # Commit Plan
 
-| #  | Owner     | Commit message                                                     | Needs | Status |
-|----|-----------|--------------------------------------------------------------------|-------|--------|
-| 1  | Sharanyo  | docs: add PRD, architecture, rules, phases, design and commit plan | —     | todo   |
-| 2  | Sharanyo  | chore: scaffold monorepo, tooling, docker compose and env example  | 1     | todo   |
+| #  | Owner     | Commit message                                                     | Needs | Status  |
+|----|-----------|--------------------------------------------------------------------|-------|---------|
+| 1  | Sharanyo  | docs: add PRD, architecture, rules, phases, design and commit plan | —     | merged  |
+| 2  | Sharanyo  | chore: scaffold monorepo, tooling, docker compose and env example  | 1     | merged  |
 | 3  | Teammate  | feat(number-theory): add gcd, extended gcd and modular inverse     | 2     | todo   |
 | 4  | Teammate  | feat(number-theory): add totient, fast modular exponentiation and euler/fermat checks | 3     | todo   |
 | 5  | Sharanyo  | feat(auth): add prisma schema, seed data, login and role middleware | 2,4   | todo   |
