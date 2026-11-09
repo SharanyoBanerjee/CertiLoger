@@ -4,14 +4,14 @@
 export { gcd, type GcdResult, type GcdStep } from './gcd.js';
 export { extendedGcd, type ExtendedGcdResult } from './extendedGcd.js';
 export { modInverse } from './modInverse.js';
-
-export function totient(_n: bigint): bigint {
-  throw new Error('Not implemented - commit 4');
-}
-
-export function modExp(_base: bigint, _exp: bigint, _mod: bigint): bigint {
-  throw new Error('Not implemented - commit 4');
-}
+export { totient, totientPrimeProduct, type TotientResult } from './totient.js';
+export { modExp, type ModExpResult, type ModExpStep } from './modExp.js';
+export {
+  checkEulerTheorem,
+  checkFermatLittle,
+  checkEulerForRSA,
+  type TheoremCheckResult,
+} from './theoremCheck.js';
 
 export function isPrimeTrial(_n: bigint): boolean {
   throw new Error('Not implemented - commit 7');
