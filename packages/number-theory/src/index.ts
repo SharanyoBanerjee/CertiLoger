@@ -1,17 +1,9 @@
 // Number theory package - algorithms will be added in commits 3, 4, 7
 // Pure TypeScript, no dependencies. Educational use only.
 
-export function gcd(_a: bigint, _b: bigint): bigint {
-  throw new Error('Not implemented - commit 3');
-}
-
-export function extendedGcd(_a: bigint, _b: bigint): { gcd: bigint; x: bigint; y: bigint } {
-  throw new Error('Not implemented - commit 3');
-}
-
-export function modInverse(_a: bigint, _m: bigint): bigint | null {
-  throw new Error('Not implemented - commit 3');
-}
+export { gcd, type GcdResult, type GcdStep } from './gcd.js';
+export { extendedGcd, type ExtendedGcdResult } from './extendedGcd.js';
+export { modInverse } from './modInverse.js';
 
 export function totient(_n: bigint): bigint {
   throw new Error('Not implemented - commit 4');
