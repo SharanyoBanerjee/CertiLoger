@@ -4,8 +4,8 @@
 |----|-----------|--------------------------------------------------------------------|-------|---------|
 | 1  | Sharanyo  | docs: add PRD, architecture, rules, phases, design and commit plan | —     | merged  |
 | 2  | Sharanyo  | chore: scaffold monorepo, tooling, docker compose and env example  | 1     | merged  |
-| 3  | Teammate  | feat(number-theory): add gcd, extended gcd and modular inverse     | 2     | todo   |
-| 4  | Teammate  | feat(number-theory): add totient, fast modular exponentiation and euler/fermat checks | 3     | todo   |
+| 3  | Teammate  | feat(number-theory): add gcd, extended gcd and modular inverse     | 2     | merged  |
+| 4  | Teammate  | feat(number-theory): add totient, fast modular exponentiation and euler/fermat checks | 3     | merged  |
 | 5  | Sharanyo  | feat(auth): add prisma schema, seed data, login and role middleware | 2,4   | todo   |
 | 6  | Sharanyo  | feat(institutions): add institution and signing key registration   | 5     | todo   |
 | 7  | Teammate  | feat(number-theory): add primality tests, toy rsa and lab api endpoints | 4     | todo   |
