@@ -1,11 +1,11 @@
 # Memory
 
-## Session: Commit 6 - Institution and Key Registration
+## Session: Commit 7 - Number Theory: Primality Tests, Toy RSA, Lab API Endpoints
 
-**Date:** 2026-11-10
+**Date:** 2026-11-11
 
 ### Current Phase
-Phase 4: Web App Foundation
+Phase 1: Number Theory Lab (continuing)
 
 ### What's Done
 - Repository initialized with git
@@ -13,30 +13,29 @@ Phase 4: Web App Foundation
 - Commit 2: monorepo scaffolding (npm workspaces, tooling, docker compose, env example)
 - Commit 3-4 (Teammate): Number theory package (gcd, extended gcd, modInverse, totient, modExp, theorem checks) with tests and docs
 - Commit 5: Auth foundation (Prisma schema, seed data, JWT auth, RBAC middleware, audit log)
-- Commit 6 (this commit): Institution and signing key registration
-  - POST /api/institutions (NETWORK_ADMIN only) - create institution
-  - GET /api/institutions - list institutions (any authenticated)
-  - GET /api/institutions/:id - get institution with keys (any authenticated)
-  - PATCH /api/institutions/:id/status (NETWORK_ADMIN only) - enable/disable institution
-  - POST /api/keys/register (INSTITUTION_ADMIN only, scoped to own institution) - register public key
-  - GET /api/keys - list keys (INSTITUTION_ADMIN scoped, NETWORK_ADMIN all)
-  - GET /api/keys/:keyId - get key details (with access control)
-  - PATCH /api/keys/:keyId/status (INSTITUTION_ADMIN only, scoped to own institution) - update key status (ACTIVE/RETIRED/COMPROMISED)
-  - Role checks on every route (401/403/409 tests)
-  - 25 integration tests covering all endpoints and error cases
+- Commit 6 (Sharanyo): Institution and signing key registration
+- **Commit 7 (this commit): Number Theory - Primality Tests, Toy RSA, Lab API Endpoints**
+  - `isPrimeTrial(n)` - trial division primality test with step table
+  - `millerRabin(n, rounds?)` - probabilistic primality test with configurable rounds, error probability 4^(-rounds), catches Carmichael numbers (e.g., 561)
+  - `toyRsaGenerate(p, q, e)` - generates toy RSA keys (n, φ, e, d) with validation
+  - `toyRsaSign(m, d, n)` - textbook RSA signing (m^d mod n)
+  - `toyRsaVerify(s, e, n)` - textbook RSA verification (s^e mod n)
+  - Reproduces textbook example: p=61, q=53, e=17, d=2753, 65^2753 mod 3233 = 588, 588^17 mod 3233 = 65
+  - Express routes under /api/lab/* for all number theory functions (gcd, extended-gcd, mod-inverse, totient, mod-exp, is-prime, miller-rabin, toy-rsa)
+  - All BigInt values returned as strings in JSON
+  - Zod-validated inputs
+  - 25 new tests covering all functions including Carmichael number 561
+  - Documentation: docs/number-theory/toy-rsa.md explaining why textbook RSA is insecure and why production uses RSA-PSS
 
 ### Decisions Made
-- Institution registration restricted to NETWORK_ADMIN
-- Key registration restricted to INSTITUTION_ADMIN for their own institution
-- Key status updates restricted to INSTITUTION_ADMIN for their own institution's keys
-- Middleware `requireInstitutionAccess` checks institutionId from body/params/query against user's institutionId
-- Route handlers also verify key ownership for key-specific operations
-- Disabled institutions cannot register new keys
-- Duplicate key IDs return 409 CONFLICT
-- Non-existent institutions return 404 (for status change) or 403 (for key registration via middleware)
+- Trial division is O(√n), suitable for educational purposes only
+- Miller-Rabin default 20 rounds (error probability ≤ 2⁻⁴⁰)
+- Toy RSA is explicitly educational - never imports into production crypto path
+- Lab API endpoints are thin wrappers around number-theory functions
+- BigInt serialized as strings in JSON to avoid precision loss
 
 ### Next Task
-Commit 7 (Teammate): feat(number-theory): add primality tests, toy rsa and lab api endpoints
+Commit 8 (Teammate): feat(crypto): add sha-256 hashing and rsa-pss signing and verification
 
 ### Known Bugs / Open Questions
 - None
