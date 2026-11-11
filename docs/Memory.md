@@ -35,7 +35,7 @@ Phase 1: Number Theory Lab (continuing)
 - BigInt serialized as strings in JSON to avoid precision loss
 
 ### Next Task
-Commit 8 (Teammate): feat(crypto): add sha-256 hashing and rsa-pss signing and verification
+Commit 9 (Sharanyo): feat(pdf): add certificate template rendering and qr generation
 
 ### Known Bugs / Open Questions
 - None

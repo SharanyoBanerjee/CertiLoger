@@ -8,8 +8,8 @@
 | 4  | Teammate  | feat(number-theory): add totient, fast modular exponentiation and euler/fermat checks | 3     | merged  |
 | 5  | Sharanyo  | feat(auth): add prisma schema, seed data, login and role middleware | 2,4   | merged  |
 | 6  | Sharanyo  | feat(institutions): add institution and signing key registration   | 5     | merged  |
-| 7  | Teammate  | feat(number-theory): add primality tests, toy rsa and lab api endpoints | 4     | in review   |
-| 8  | Teammate  | feat(crypto): add sha-256 hashing and rsa-pss signing and verification | 2     | todo   |
+| 7  | Teammate  | feat(number-theory): add primality tests, toy rsa and lab api endpoints | 4     | merged  |
+| 8  | Teammate  | feat(crypto): add sha-256 hashing and rsa-pss signing and verification | 2     | merged  |
 | 9  | Sharanyo  | feat(pdf): add certificate template rendering and qr generation    | 5,8   | todo   |
 | 10 | Teammate  | feat(ledger): add ledger interface and hash-chained local ledger   | 5,8   | todo   |
 | 11 | Sharanyo  | feat(certificates): add certificate issuance with ledger commit    | 6,9,10| todo   |
