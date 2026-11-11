@@ -4,4 +4,4 @@ keys/
 storage/
 dist/
 coverage/
-Documents/
+Documents/.DS_Store
