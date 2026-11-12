@@ -4,6 +4,7 @@ import authRouter from './routes/auth.js';
 import institutionRouter from './routes/institutions.js';
 import keysRouter from './routes/keys.js';
 import labRouter from './routes/lab.js';
+import certificatesRouter from './routes/certificates.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { env } from './config/env.js';
 
@@ -24,6 +25,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/institutions', institutionRouter);
 app.use('/api/keys', keysRouter);
 app.use('/api/lab', labRouter);
+app.use('/api/certificates', certificatesRouter);
 
 app.use(errorHandler);
 

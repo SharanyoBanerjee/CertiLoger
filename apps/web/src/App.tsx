@@ -1,76 +1,150 @@
-import { Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './hooks/useAuth';
+import { Landing } from './pages/Landing';
+import { Login } from './pages/Login';
+import { Verify } from './pages/Verify';
+import { AuthLayout } from './components/AuthLayout';
+import { Dashboard } from './pages/Dashboard';
+import { Issue } from './pages/Issue';
+import { Certificates } from './pages/Certificates';
+import { Keys } from './pages/Keys';
+import { Institutions } from './pages/Institutions';
+import { Ledger } from './pages/Ledger';
+import { Lab } from './pages/Lab';
+import { PrototypeBanner } from './components/PrototypeBanner';
+import './index.css';
+
+function PublicLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen bg-bg">
+      <header className="bg-navy-900 text-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <span className="text-xl font-bold">CertiLedger</span>
+            <nav className="flex items-center gap-4">
+              <a href="/verify" className="text-gray-300 hover:text-white transition-colors">
+                Verify
+              </a>
+              <a
+                href="/login"
+                className="px-4 py-2 border border-gray-600 rounded-lg hover:bg-navy-700 transition-colors"
+              >
+                Sign In
+              </a>
+            </nav>
+          </div>
+        </div>
+      </header>
+      <PrototypeBanner />
+      <main className="max-w-7xl mx-auto px-4 py-8">{children}</main>
+    </div>
+  );
+}
+
+function PrivateRoute({ children }: { children: React.ReactNode }) {
+  const token = localStorage.getItem('accessToken');
+  return token ? <>{children}</> : <Navigate to="/login" replace />;
+}
+
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={
+          <PublicLayout>
+            <Landing />
+          </PublicLayout>
+        }
+      />
+      <Route
+        path="/verify"
+        element={
+          <PublicLayout>
+            <Verify />
+          </PublicLayout>
+        }
+      />
+      <Route
+        path="/login"
+        element={
+          <PublicLayout>
+            <Login />
+          </PublicLayout>
+        }
+      />
+
+      <Route element={<AuthLayout />}>
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/issue"
+          element={
+            <PrivateRoute>
+              <Issue />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/certificates"
+          element={
+            <PrivateRoute>
+              <Certificates />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/keys"
+          element={
+            <PrivateRoute>
+              <Keys />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/institutions"
+          element={
+            <PrivateRoute>
+              <Institutions />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/ledger"
+          element={
+            <PrivateRoute>
+              <Ledger />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/lab"
+          element={
+            <PrivateRoute>
+              <Lab />
+            </PrivateRoute>
+          }
+        />
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
 
 function App() {
   return (
-    <div className="min-h-screen bg-bg">
-      <header className="bg-navy-900 text-white p-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <h1 className="text-xl font-bold">CertiLedger</h1>
-          <nav className="flex gap-4 text-sm">
-            <a href="/verify" className="hover:text-blue-300">
-              Verify
-            </a>
-            <a href="/login" className="hover:text-blue-300">
-              Login
-            </a>
-          </nav>
-        </div>
-      </header>
-      <div className="bg-yellow-100 border-b border-yellow-300 px-4 py-2 text-center text-sm text-yellow-900">
-        Academic prototype. Fictional institutions and data. Not a legal verification service.
-      </div>
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/verify" element={<Verify />} />
-          <Route path="/login" element={<Login />} />
-        </Routes>
-      </main>
-    </div>
-  );
-}
-
-function Home() {
-  return (
-    <div className="text-center">
-      <h2 className="text-3xl font-bold text-navy-900 mb-4">Certificate Verification Platform</h2>
-      <p className="text-text-muted mb-8 max-w-2xl mx-auto">
-        Issue and verify digitally signed certificates with cryptographic proof of authenticity,
-        integrity, and current status.
-      </p>
-      <div className="flex gap-4 justify-center">
-        <a
-          href="/verify"
-          className="bg-navy-900 text-white px-6 py-2 rounded-lg hover:bg-navy-700 transition"
-        >
-          Verify a Certificate
-        </a>
-        <a
-          href="/login"
-          className="border-2 border-navy-900 text-navy-900 px-6 py-2 rounded-lg hover:bg-navy-50 transition"
-        >
-          Sign In
-        </a>
-      </div>
-    </div>
-  );
-}
-
-function Verify() {
-  return (
-    <div className="max-w-xl mx-auto">
-      <h2 className="text-2xl font-bold text-navy-900 mb-4">Verify Certificate</h2>
-      <p className="text-text-muted">Verification page coming soon.</p>
-    </div>
-  );
-}
-
-function Login() {
-  return (
-    <div className="max-w-md mx-auto">
-      <h2 className="text-2xl font-bold text-navy-900 mb-4">Sign In</h2>
-      <p className="text-text-muted">Login page coming soon.</p>
-    </div>
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

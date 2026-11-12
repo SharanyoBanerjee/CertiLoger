@@ -1,11 +1,11 @@
 # Memory
 
-## Session: Commit 7 - Number Theory: Primality Tests, Toy RSA, Lab API Endpoints
+## Session: Commit 9 - PDF Template Rendering and QR Generation
 
-**Date:** 2026-11-11
+**Date:** 2026-11-12
 
 ### Current Phase
-Phase 1: Number Theory Lab (continuing)
+Phase 4: Web App Foundation
 
 ### What's Done
 - Repository initialized with git
@@ -13,29 +13,36 @@ Phase 1: Number Theory Lab (continuing)
 - Commit 2: monorepo scaffolding (npm workspaces, tooling, docker compose, env example)
 - Commit 3-4 (Teammate): Number theory package (gcd, extended gcd, modInverse, totient, modExp, theorem checks) with tests and docs
 - Commit 5: Auth foundation (Prisma schema, seed data, JWT auth, RBAC middleware, audit log)
-- Commit 6 (Sharanyo): Institution and signing key registration
-- **Commit 7 (this commit): Number Theory - Primality Tests, Toy RSA, Lab API Endpoints**
-  - `isPrimeTrial(n)` - trial division primality test with step table
-  - `millerRabin(n, rounds?)` - probabilistic primality test with configurable rounds, error probability 4^(-rounds), catches Carmichael numbers (e.g., 561)
-  - `toyRsaGenerate(p, q, e)` - generates toy RSA keys (n, φ, e, d) with validation
-  - `toyRsaSign(m, d, n)` - textbook RSA signing (m^d mod n)
-  - `toyRsaVerify(s, e, n)` - textbook RSA verification (s^e mod n)
-  - Reproduces textbook example: p=61, q=53, e=17, d=2753, 65^2753 mod 3233 = 588, 588^17 mod 3233 = 65
-  - Express routes under /api/lab/* for all number theory functions (gcd, extended-gcd, mod-inverse, totient, mod-exp, is-prime, miller-rabin, toy-rsa)
-  - All BigInt values returned as strings in JSON
-  - Zod-validated inputs
-  - 25 new tests covering all functions including Carmichael number 561
-  - Documentation: docs/number-theory/toy-rsa.md explaining why textbook RSA is insecure and why production uses RSA-PSS
+- Commit 6: Institution and signing key registration
+- Commit 7 (Teammate): Number Theory - Primality Tests, Toy RSA, Lab API Endpoints
+- Commit 8 (Teammate): Crypto - SHA-256, RSA-PSS sign/verify, key generation
+- **Commit 9 (this commit): PDF Template Rendering and QR Generation**
+  - PDF certificate generation using pdf-lib (A4, 20mm margins, Source Serif 4 font)
+  - QR code generation with qrcode library encoding verification URL
+  - Certificate template with institution name, holder name, qualification, grade, date
+  - Certificate ID and verification URL displayed
+  - POST /api/certificates endpoint for issuers to generate certificates
+  - PDF returned as downloadable attachment
+  - Frontend pages: Landing, Login, Verify, Dashboard, Issue, Certificates, Keys, Institutions, Ledger, Lab
+  - Auth layout with role-based navigation
+  - React components: Button, Input, Select, Textarea, Card, Badge, Table, Modal, PrototypeBanner
+  - Auth provider with JWT token management
+  - API client with all endpoints
+  - Number Theory Lab page with all algorithms
+  - Complete UI implementation per Design.md specifications
 
 ### Decisions Made
-- Trial division is O(√n), suitable for educational purposes only
-- Miller-Rabin default 20 rounds (error probability ≤ 2⁻⁴⁰)
-- Toy RSA is explicitly educational - never imports into production crypto path
-- Lab API endpoints are thin wrappers around number-theory functions
-- BigInt serialized as strings in JSON to avoid precision loss
+- pdf-lib for PDF generation (no headless browser needed)
+- qrcode library for QR code generation
+- Certificate template matches Design.md section 8 exactly
+- QR code encodes `{BASE_URL}/verify/{certificateId}` only
+- PDF is final before any hashing/signing (per Architecture.md)
+- Frontend uses Vite + React + TypeScript + Tailwind
+- Role-based navigation in AuthLayout
+- Mock data used for frontend development (real API integration pending)
 
 ### Next Task
-Commit 9 (Sharanyo): feat(pdf): add certificate template rendering and qr generation
+Commit 10 (Teammate): feat(ledger): add ledger interface and hash-chained local ledger
 
 ### Known Bugs / Open Questions
 - None
@@ -66,6 +73,12 @@ npm run lint
 # Format
 npm run format
 
-# Build API
-npm run build --workspace=apps/api
+# Build all
+npm run build
+
+# Run API dev server
+npm run dev --workspace=apps/api
+
+# Run Web dev server
+npm run dev --workspace=apps/web
 ```

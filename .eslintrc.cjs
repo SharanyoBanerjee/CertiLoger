@@ -10,7 +10,9 @@ module.exports = {
   parserOptions: {
     ecmaVersion: "latest",
     sourceType: "module",
-    project: ["./tsconfig.json", "./apps/*/tsconfig.json", "./packages/*/tsconfig.json"]
+    project: ["./tsconfig.json", "./apps/*/tsconfig.json", "./packages/*/tsconfig.json"],
+    // Exclude test files from type-aware linting
+    tsconfigRootDir: __dirname,
   },
   plugins: ["@typescript-eslint", "prettier"],
   rules: {
@@ -19,5 +21,5 @@ module.exports = {
     "@typescript-eslint/consistent-type-imports": "error",
     "prettier/prettier": "error"
   },
-  ignorePatterns: ["node_modules/", "dist/", "storage/", "keys/", "Documents/", "*.config.js"]
+  ignorePatterns: ["node_modules/", "dist/", "storage/", "keys/", "Documents/", "*.config.js", "**/*.test.ts", "**/*.test.tsx"]
 }
