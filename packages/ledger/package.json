@@ -11,8 +11,12 @@
     "lint": "eslint src --ext ts",
     "format": "prettier --write src"
   },
+  "dependencies": {
+    "@prisma/client": "^5.22.0"
+  },
   "devDependencies": {
     "@types/node": "^20.11.0",
+    "prisma": "^5.22.0",
     "typescript": "^5.4.0",
     "vitest": "^1.4.0"
   }

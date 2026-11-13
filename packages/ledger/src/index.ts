@@ -1,5 +1,7 @@
-// Ledger package - interface and LocalLedger will be added in commit 10
+// Ledger package - interface and LocalLedger implementation
 // See docs/Architecture.md section 6 for the interface definition
+
+export { LocalLedger } from './localLedger.js';
 
 export interface LedgerCertificate {
   certificateId: string;
