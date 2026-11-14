@@ -94,3 +94,10 @@ export async function listKeys(institutionId?: string) {
 export async function getKey(keyId: string) {
   return prisma.issuerKey.findUnique({ where: { keyId } });
 }
+
+export async function getActiveKey(institutionId: string) {
+  return prisma.issuerKey.findFirst({
+    where: { institutionId, status: 'ACTIVE' },
+    orderBy: { validFrom: 'desc' },
+  });
+}

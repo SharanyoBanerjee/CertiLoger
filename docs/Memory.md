@@ -1,8 +1,8 @@
 # Memory
 
-## Session: Commit 10 - Hash-Chained Local Ledger
+## Session: Commit 11 - Certificate Issuance with Ledger Commit
 
-**Date:** 2026-11-13
+**Date:** 2026-11-14
 
 ### Current Phase
 Phase 4: Web App Foundation
@@ -17,37 +17,39 @@ Phase 4: Web App Foundation
 - Commit 7 (Teammate): Number Theory - Primality Tests, Toy RSA, Lab API Endpoints
 - Commit 8 (Teammate): Crypto - SHA-256, RSA-PSS sign/verify, key generation
 - Commit 9: PDF Template Rendering and QR Generation
-- **Commit 10 (this commit): feat(ledger): add ledger interface and hash-chained local ledger**
-  - `packages/ledger/src/index.ts` - LedgerService interface and types (LedgerCertificate, LedgerIssuer, LedgerEvent, TxResult, LedgerUnavailableError)
-  - `packages/ledger/src/localLedger.ts` - LocalLedger implementation with hash-chained entries
-    - SHA-256 via node:crypto (no dependency on crypto package)
-    - Canonical JSON with sorted keys for deterministic hashing
-    - Genesis entry uses `prevHash = "0".repeat(64)`
-    - Entry hash = SHA256(prevHash + canonicalJson({type, subjectId, payload, at}))
-    - Serializable transactions for concurrent write safety
-    - All LedgerService methods implemented:
-      - registerIssuer, setIssuerStatus, registerIssuerKey, setKeyStatus
-      - issueCertificate (rejects unknown/disabled issuer, duplicate ID)
-      - revokeCertificate (rejects unknown/already revoked)
-      - getCertificate, getIssuer, getHistory, verifyChain
-  - `packages/ledger/src/localLedger.test.ts` - 33 comprehensive tests
-  - `docs/ledger.md` - Documentation explaining chaining, tampering detection, honest limit
+- Commit 10 (Teammate): Ledger interface and hash-chained local ledger (LocalLedger)
+- **Commit 11 (this commit): Certificate Issuance with Ledger Commit**
+  - POST /api/certificates endpoint with full issuance flow:
+    1. Validate input (zod)
+    2. Check caller has access to institution
+    3. Get institution's active signing key
+    4. Generate certificate ID
+    5. Create certificate record with PENDING status
+    6. Render PDF with certificate ID and QR code
+    7. Hash PDF bytes (SHA-256 from crypto package)
+    8. Sign PDF bytes with institution's private key (RSA-PSS from crypto package)
+    9. Commit to ledger (LocalLedger.issueCertificate)
+    10. On success: update certificate to ISSUED with documentHash, keyId, txId
+    11. On failure: mark certificate as FAILED
+    12. Return PDF as downloadable attachment
+  - Private keys read from KEYS_DIR on server only
+  - Certificate events and audit logs written
+  - Role checks on every route (ISSUER only)
 
 ### Decisions Made
-- SHA-256 implemented directly in localLedger.ts using node:crypto (no workspace:* dependency issues)
-- Prisma Client added as dependency to ledger package
-- Serializable isolation level for all write transactions
-- Canonical JSON sorts keys alphabetically at all nesting levels
-- verifyChain() returns `{ valid: boolean, firstBrokenIndex?: number }`
-- getHistory() returns events in chronological order (seq ascending)
-- "Honest limit" documented: one Postgres owner can rewrite entire chain
+- Full issuance flow implements Architecture.md section 8 exactly
+- PDF rendered before hashing (ID and QR embedded first)
+- SHA-256 and RSA-PSS from @certiledger/crypto package (node:crypto)
+- Private keys loaded from KEYS_DIR/{keyId}.pem on server only
+- Ledger commit happens before marking ISSUED (never mark ISSUED before ledger commit)
+- FAILED status on any failure after PENDING
+- Certificate events and audit logs for traceability
 
 ### Next Task
-Commit 11 (Sharanyo): feat(certificates): add certificate issuance with ledger commit
+Commit 12 (Teammate): feat(verify): add verification service and revocation
 
 ### Known Bugs / Open Questions
-- Tests require PostgreSQL database (not available locally - needs docker compose up)
-- bcrypt native module missing for API tests
+- Ledger package test failure in commit 10 (teammate's test expects "Unknown or disabled issuer" but gets "No genesis entry found" when no genesis entry exists) - this is in teammate's commit 10
 
 ### Commands
 ```bash

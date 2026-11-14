@@ -11,8 +11,8 @@
 | 7  | Teammate  | feat(number-theory): add primality tests, toy rsa and lab api endpoints | 4     | merged  |
 | 8  | Teammate  | feat(crypto): add sha-256 hashing and rsa-pss signing and verification | 2     | merged  |
 | 9  | Sharanyo  | feat(pdf): add certificate template rendering and qr generation    | 5,8   | merged  |
-| 10 | Teammate  | feat(ledger): add ledger interface and hash-chained local ledger   | 5,8   | in review |
-| 11 | Sharanyo  | feat(certificates): add certificate issuance with ledger commit    | 6,9,10| todo   |
+| 10 | Teammate  | feat(ledger): add ledger interface and hash-chained local ledger   | 5,8   | merged  |
+| 11 | Sharanyo  | feat(certificates): add certificate issuance with ledger commit    | 6,9,10| merged  |
 | 12 | Teammate  | feat(verify): add verification service and revocation              | 10,11 | todo   |
 | 13 | Sharanyo  | feat(web): add login, issue, verify, admin, keys, holder, explorer and lab pages | 11,12 | todo   |
 | 14 | Teammate  | test: add end-to-end demo scenario and performance measurements    | 13    | todo   |
