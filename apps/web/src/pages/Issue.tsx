@@ -21,7 +21,7 @@ const institutions = [
 ];
 
 export function Issue() {
-  const { user } = useAuth();
+  const { user, accessToken } = useAuth();
   const [formData, setFormData] = useState<FormData>({
     institutionId: user?.institutionId || '',
     holderName: '',
@@ -55,7 +55,8 @@ export function Issue() {
     setResult(null);
 
     try {
-      const pdfBlob = await api.certificates.issue(formData, 'mock-token');
+      const token = accessToken || localStorage.getItem('accessToken') || '';
+      const pdfBlob = await api.certificates.issue(formData, token);
       const url = URL.createObjectURL(pdfBlob);
       const certId = `CERT-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
       setResult({ success: true, pdfUrl: url, certId });
@@ -81,7 +82,7 @@ export function Issue() {
           <h2 className="text-lg font-semibold">Certificate Details</h2>
         </CardHeader>
         <CardContent className="space-y-6">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="space-y-4">
             <Select
               label="Institution"
               value={formData.institutionId}

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { AuthProvider } from './hooks/useAuth';
 import { Landing } from './pages/Landing';
 import { Login } from './pages/Login';
@@ -20,17 +20,19 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
       <header className="bg-navy-900 text-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            <span className="text-xl font-bold">CertiLedger</span>
+            <Link to="/" className="text-xl font-bold">
+              CertiLedger
+            </Link>
             <nav className="flex items-center gap-4">
-              <a href="/verify" className="text-gray-300 hover:text-white transition-colors">
+              <Link to="/verify" className="text-gray-300 hover:text-white transition-colors">
                 Verify
-              </a>
-              <a
-                href="/login"
+              </Link>
+              <Link
+                to="/login"
                 className="px-4 py-2 border border-gray-600 rounded-lg hover:bg-navy-700 transition-colors"
               >
                 Sign In
-              </a>
+              </Link>
             </nav>
           </div>
         </div>
@@ -49,14 +51,7 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 function AppRoutes() {
   return (
     <Routes>
-      <Route
-        path="/"
-        element={
-          <PublicLayout>
-            <Landing />
-          </PublicLayout>
-        }
-      />
+      <Route path="/" element={<Landing />} />
       <Route
         path="/verify"
         element={
