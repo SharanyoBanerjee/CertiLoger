@@ -3,6 +3,8 @@ import { verifyToken } from '../services/auth.js';
 import type { JwtPayload } from '../services/auth.js';
 import { UnauthorizedError, ForbiddenError } from './errors.js';
 
+export type AuthRequest = Request & { user?: JwtPayload };
+
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {

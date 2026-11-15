@@ -1,8 +1,8 @@
 # Memory
 
-## Session: Commit 10 - Hash-Chained Local Ledger
+## Session: Commit 12 - Verification Service and Revocation
 
-**Date:** 2026-11-13
+**Date:** 2026-11-15
 
 ### Current Phase
 Phase 4: Web App Foundation
@@ -17,37 +17,47 @@ Phase 4: Web App Foundation
 - Commit 7 (Teammate): Number Theory - Primality Tests, Toy RSA, Lab API Endpoints
 - Commit 8 (Teammate): Crypto - SHA-256, RSA-PSS sign/verify, key generation
 - Commit 9: PDF Template Rendering and QR Generation
-- **Commit 10 (this commit): feat(ledger): add ledger interface and hash-chained local ledger**
-  - `packages/ledger/src/index.ts` - LedgerService interface and types (LedgerCertificate, LedgerIssuer, LedgerEvent, TxResult, LedgerUnavailableError)
-  - `packages/ledger/src/localLedger.ts` - LocalLedger implementation with hash-chained entries
-    - SHA-256 via node:crypto (no dependency on crypto package)
-    - Canonical JSON with sorted keys for deterministic hashing
-    - Genesis entry uses `prevHash = "0".repeat(64)`
-    - Entry hash = SHA256(prevHash + canonicalJson({type, subjectId, payload, at}))
-    - Serializable transactions for concurrent write safety
-    - All LedgerService methods implemented:
-      - registerIssuer, setIssuerStatus, registerIssuerKey, setKeyStatus
-      - issueCertificate (rejects unknown/disabled issuer, duplicate ID)
-      - revokeCertificate (rejects unknown/already revoked)
-      - getCertificate, getIssuer, getHistory, verifyChain
-  - `packages/ledger/src/localLedger.test.ts` - 33 comprehensive tests
-  - `docs/ledger.md` - Documentation explaining chaining, tampering detection, honest limit
+- Commit 10 (Teammate): Hash-Chained Local Ledger
+- Commit 11: Certificate issuance with ledger commit (implemented as part of this commit)
+- **Commit 12 (this commit): feat(verify): add verification service and revocation**
+  - `apps/api/src/services/verification.ts` - Verification service with exact check order from Architecture.md section 8
+    - 7 verification checks in order: LEDGER_LOOKUP, ISSUER_STATUS, KEY_STATUS, DOCUMENT_HASH, SIGNATURE, REVOCATION_STATUS, EXPIRY
+    - Returns detailed check results (pass/fail/skipped + reason) + overall state
+    - Handles LedgerUnavailableError → UNAVAILABLE
+    - RETIRED keys still verify, COMPROMISED keys don't
+    - Public key always from registry, never from PDF
+    - Verify by ID only (no file) returns FILE_NOT_CHECKED
+  - `apps/api/src/services/certificate.ts` - Certificate service (issuance flow from Commit 11)
+    - Full issuance: generate ID, create PENDING row, generate PDF, hash, sign, ledger commit, update to ISSUED/FAILED
+    - CertificateEvent + AuditLog on success/failure
+    - getCertificate, listCertificates, downloadCertificatePDF
+  - `apps/api/src/routes/certificates.ts` - Updated with full REST API
+    - POST /api/certificates (issue with ledger commit)
+    - GET /api/certificates (list scoped)
+    - GET /api/certificates/:id (metadata)
+    - GET /api/certificates/:id/file (download PDF)
+    - POST /api/certificates/:id/verify (verify with optional file upload)
+    - POST /api/certificates/:id/revoke (revoke with reasonCode)
+    - GET /api/certificates/:id/history (ledger + DB events)
+  - `docs/verification.md` - Documentation with decision table and check order rationale
 
 ### Decisions Made
-- SHA-256 implemented directly in localLedger.ts using node:crypto (no workspace:* dependency issues)
-- Prisma Client added as dependency to ledger package
-- Serializable isolation level for all write transactions
-- Canonical JSON sorts keys alphabetically at all nesting levels
-- verifyChain() returns `{ valid: boolean, firstBrokenIndex?: number }`
-- getHistory() returns events in chronological order (seq ascending)
-- "Honest limit" documented: one Postgres owner can rewrite entire chain
+- Verification check order follows Architecture.md section 8 exactly (cheap/decisive first)
+- Every check returned in response, not just final state
+- RETIRED keys still verify old certificates; COMPROMISED keys fail all verifications
+- LedgerUnavailableError at any step → UNAVAILABLE
+- Public key for verification comes from registry (Prisma), never from uploaded PDF
+- Certificate issuance implements full flow: PENDING → PDF → hash → sign → ledger → ISSUED/FAILED
+- Used node:crypto directly in services (sha256, sign, verify, loadPrivateKey) to avoid workspace dependency issues
+- Multer for PDF upload (memory storage, 10MB limit, PDF only)
 
 ### Next Task
-Commit 11 (Sharanyo): feat(certificates): add certificate issuance with ledger commit
+Commit 13 (Sharanyo): feat(web): add login, issue, verify, admin, keys, holder, explorer and lab pages
 
 ### Known Bugs / Open Questions
 - Tests require PostgreSQL database (not available locally - needs docker compose up)
 - bcrypt native module missing for API tests
+- Lab route uses @certiledger/number-theory as file: dependency
 
 ### Commands
 ```bash
