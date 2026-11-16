@@ -14,28 +14,35 @@ import { Input } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import { Card, CardHeader, CardContent } from '../components/ui/Card';
 
+type VerificationCheck =
+  | 'LEDGER_LOOKUP'
+  | 'ISSUER_STATUS'
+  | 'KEY_STATUS'
+  | 'DOCUMENT_HASH'
+  | 'SIGNATURE'
+  | 'REVOCATION_STATUS'
+  | 'EXPIRY';
+
+type CheckResult = {
+  check: VerificationCheck;
+  status: 'pass' | 'fail' | 'skipped';
+  reason: string;
+};
+
 type VerificationResult = {
-  status:
+  certificateId: string;
+  overallState:
     | 'VALID'
     | 'NOT_FOUND'
+    | 'ISSUER_UNTRUSTED'
     | 'DOCUMENT_MISMATCH'
     | 'SIGNATURE_INVALID'
-    | 'ISSUER_UNTRUSTED'
     | 'REVOKED'
     | 'EXPIRED'
-    | 'UNAVAILABLE';
-  checks: Array<{
-    name: string;
-    passed: boolean | null;
-    reason: string;
-  }>;
-  certificate?: {
-    id: string;
-    issuer: string;
-    issuedAt: string;
-    expiresAt: string | null;
-    keyId: string;
-  };
+    | 'UNAVAILABLE'
+    | 'FILE_NOT_CHECKED';
+  checks: CheckResult[];
+  verifiedAt: string;
 };
 
 type BadgeVariant =
@@ -46,10 +53,11 @@ type BadgeVariant =
   | 'untrusted'
   | 'revoked'
   | 'expired'
-  | 'unavailable';
+  | 'unavailable'
+  | 'default';
 
 const statusConfig: Record<
-  VerificationResult['status'],
+  VerificationResult['overallState'],
   { icon: React.ReactNode; label: string; description: string; variant: BadgeVariant }
 > = {
   VALID: {
@@ -100,6 +108,12 @@ const statusConfig: Record<
     description: 'Verification is temporarily unavailable. No conclusion can be drawn.',
     variant: 'unavailable',
   },
+  FILE_NOT_CHECKED: {
+    icon: <FileText className="w-6 h-6" />,
+    label: 'FILE NOT CHECKED',
+    description: 'Certificate found but file not uploaded for full verification.',
+    variant: 'default',
+  },
 };
 
 export function Verify() {
@@ -116,35 +130,18 @@ export function Verify() {
     setError(undefined);
     setResult(null);
     try {
-      // For now, simulate
-      setResult({
-        status: 'VALID',
-        checks: [
-          { name: 'Certificate found on ledger', passed: true, reason: 'Found' },
-          { name: 'Issuer and signing key trusted', passed: true, reason: 'Trusted' },
-          {
-            name: 'Document hash matches',
-            passed: null,
-            reason: 'Not checked: upload the PDF to verify',
-          },
-          {
-            name: 'Digital signature valid',
-            passed: null,
-            reason: 'Not checked: upload the PDF to verify',
-          },
-          { name: 'Not revoked', passed: true, reason: 'Active' },
-          { name: 'Not expired', passed: true, reason: 'Valid until 2027-01-01' },
-        ],
-        certificate: {
-          id: certificateId,
-          issuer: 'University of CertiLedger',
-          issuedAt: '2026-01-15T00:00:00Z',
-          expiresAt: '2027-01-15T00:00:00Z',
-          keyId: 'INST-001-KEY-01',
-        },
+      const response = await fetch(`/api/certificates/${certificateId}/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
       });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error?.message || 'Verification failed');
+      }
+      const data = await response.json();
+      setResult(data);
     } catch (err) {
-      setError('Verification failed. Please try again.');
+      setError(err instanceof Error ? err.message : 'Verification failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -156,27 +153,20 @@ export function Verify() {
     setError(undefined);
     setResult(null);
     try {
-      // Simulate file verification
-      setResult({
-        status: 'VALID',
-        checks: [
-          { name: 'Certificate found on ledger', passed: true, reason: 'Found' },
-          { name: 'Issuer and signing key trusted', passed: true, reason: 'Trusted' },
-          { name: 'Document hash matches', passed: true, reason: 'Hash matches' },
-          { name: 'Digital signature valid', passed: true, reason: 'Signature valid' },
-          { name: 'Not revoked', passed: true, reason: 'Active' },
-          { name: 'Not expired', passed: true, reason: 'Valid until 2027-01-01' },
-        ],
-        certificate: {
-          id: certificateId,
-          issuer: 'University of CertiLedger',
-          issuedAt: '2026-01-15T00:00:00Z',
-          expiresAt: '2027-01-15T00:00:00Z',
-          keyId: 'INST-001-KEY-01',
-        },
+      const formData = new FormData();
+      formData.append('file', pdfFile);
+      const response = await fetch(`/api/certificates/${certificateId}/verify`, {
+        method: 'POST',
+        body: formData,
       });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error?.message || 'Verification failed');
+      }
+      const data = await response.json();
+      setResult(data);
     } catch (err) {
-      setError('Verification failed. Please try again.');
+      setError(err instanceof Error ? err.message : 'Verification failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -189,7 +179,18 @@ export function Verify() {
     }
   };
 
-  const config = result ? statusConfig[result.status] : null;
+  const config = result ? statusConfig[result.overallState] : null;
+
+  // Map check names to human-readable labels
+  const checkLabels: Record<string, string> = {
+    LEDGER_LOOKUP: 'Certificate found on ledger',
+    ISSUER_STATUS: 'Issuer and signing key trusted',
+    KEY_STATUS: 'Signing key status',
+    DOCUMENT_HASH: 'Document hash matches',
+    SIGNATURE: 'Digital signature valid',
+    REVOCATION_STATUS: 'Not revoked',
+    EXPIRY: 'Not expired',
+  };
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -335,58 +336,46 @@ export function Verify() {
           <CardContent className="space-y-4">
             <p className="text-text-muted">{config.description}</p>
 
-            {result.certificate && (
-              <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-                <h4 className="font-medium text-text">Certificate Details</h4>
-                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                  <dt className="text-text-muted">Certificate ID</dt>
-                  <dd className="font-mono text-text">{result.certificate.id}</dd>
-                  <dt className="text-text-muted">Issuer</dt>
-                  <dd className="text-text">{result.certificate.issuer}</dd>
-                  <dt className="text-text-muted">Key ID</dt>
-                  <dd className="font-mono text-text">{result.certificate.keyId}</dd>
-                  <dt className="text-text-muted">Issued</dt>
-                  <dd className="text-text">
-                    {new Date(result.certificate.issuedAt).toLocaleDateString()}
-                  </dd>
-                  <dt className="text-text-muted">Expires</dt>
-                  <dd className="text-text">
-                    {result.certificate.expiresAt
-                      ? new Date(result.certificate.expiresAt).toLocaleDateString()
-                      : 'Never'}
-                  </dd>
-                </dl>
-              </div>
-            )}
+            <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+              <h4 className="font-medium text-text">Certificate Details</h4>
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                <dt className="text-text-muted">Certificate ID</dt>
+                <dd className="font-mono text-text">{result.certificateId}</dd>
+                <dt className="text-text-muted">Verification Time</dt>
+                <dd className="text-text">{new Date(result.verifiedAt).toLocaleString()}</dd>
+              </dl>
+            </div>
 
             <div className="border-t border-border pt-4">
               <h4 className="font-medium text-text mb-3">Verification Checks</h4>
               <div className="space-y-2">
                 {result.checks.map((check, i) => (
                   <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                    {check.passed === true ? (
+                    {check.status === 'pass' ? (
                       <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                    ) : check.passed === false ? (
+                    ) : check.status === 'fail' ? (
                       <XCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
                     ) : (
                       <Clock className="w-5 h-5 text-gray-400 flex-shrink-0" />
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-text">{check.name}</p>
+                      <p className="text-sm font-medium text-text">
+                        {checkLabels[check.check] || check.check}
+                      </p>
                       <p className="text-xs text-text-muted">{check.reason}</p>
                     </div>
                     <span
                       className={`text-xs font-medium px-2 py-0.5 rounded ${
-                        check.passed === true
+                        check.status === 'pass'
                           ? 'bg-green-100 text-green-700'
-                          : check.passed === false
+                          : check.status === 'fail'
                             ? 'bg-red-100 text-red-700'
                             : 'bg-gray-100 text-gray-700'
                       }`}
                     >
-                      {check.passed === true
+                      {check.status === 'pass'
                         ? 'Passed'
-                        : check.passed === false
+                        : check.status === 'fail'
                           ? 'Failed'
                           : 'Skipped'}
                     </span>

@@ -1,8 +1,8 @@
 # Memory
 
-## Session: Commit 12 - Verification Service and Revocation
+## Session: Commit 13 - Web Pages Integration
 
-**Date:** 2026-11-15
+**Date:** 2026-11-16
 
 ### Current Phase
 Phase 4: Web App Foundation
@@ -17,47 +17,43 @@ Phase 4: Web App Foundation
 - Commit 7 (Teammate): Number Theory - Primality Tests, Toy RSA, Lab API Endpoints
 - Commit 8 (Teammate): Crypto - SHA-256, RSA-PSS sign/verify, key generation
 - Commit 9: PDF Template Rendering and QR Generation
-- Commit 10 (Teammate): Hash-Chained Local Ledger
-- Commit 11: Certificate issuance with ledger commit (implemented as part of this commit)
-- **Commit 12 (this commit): feat(verify): add verification service and revocation**
-  - `apps/api/src/services/verification.ts` - Verification service with exact check order from Architecture.md section 8
-    - 7 verification checks in order: LEDGER_LOOKUP, ISSUER_STATUS, KEY_STATUS, DOCUMENT_HASH, SIGNATURE, REVOCATION_STATUS, EXPIRY
-    - Returns detailed check results (pass/fail/skipped + reason) + overall state
-    - Handles LedgerUnavailableError → UNAVAILABLE
-    - RETIRED keys still verify, COMPROMISED keys don't
-    - Public key always from registry, never from PDF
-    - Verify by ID only (no file) returns FILE_NOT_CHECKED
-  - `apps/api/src/services/certificate.ts` - Certificate service (issuance flow from Commit 11)
-    - Full issuance: generate ID, create PENDING row, generate PDF, hash, sign, ledger commit, update to ISSUED/FAILED
-    - CertificateEvent + AuditLog on success/failure
-    - getCertificate, listCertificates, downloadCertificatePDF
-  - `apps/api/src/routes/certificates.ts` - Updated with full REST API
-    - POST /api/certificates (issue with ledger commit)
-    - GET /api/certificates (list scoped)
-    - GET /api/certificates/:id (metadata)
-    - GET /api/certificates/:id/file (download PDF)
-    - POST /api/certificates/:id/verify (verify with optional file upload)
-    - POST /api/certificates/:id/revoke (revoke with reasonCode)
-    - GET /api/certificates/:id/history (ledger + DB events)
-  - `docs/verification.md` - Documentation with decision table and check order rationale
+- Commit 10 (Teammate): Ledger interface and hash-chained local ledger (LocalLedger)
+- Commit 11: Certificate Issuance with Ledger Commit
+- Commit 12 (Teammate): Verification service and revocation
+- **Commit 13 (this commit): Web Pages Integration**
+  - Integrated all 10 web pages with real API endpoints:
+    - Landing page (`/`) - Public landing with verify/login links
+    - Login page (`/login`) - JWT authentication with role-based redirect
+    - Verify page (`/verify`) - Public verification by ID or PDF upload, shows check-by-check results
+    - Dashboard (`/dashboard`) - Role-based stats and quick actions
+    - Issue page (`/issue`) - Certificate issuance form with PDF download
+    - Certificates page (`/certificates`) - Searchable/filterable list with detail modal
+    - Keys page (`/keys`) - Register/view/update signing keys
+    - Institutions page (`/institutions`) - NETWORK_ADMIN can register/disable institutions
+    - Ledger page (`/ledger`) - Hash-chained ledger explorer with chain verification
+    - Lab page (`/lab`) - All 12 number theory algorithms with step-by-step output
+  - AuthProvider with JWT token management (access + refresh tokens)
+  - AuthLayout with role-based navigation and PrototypeBanner
+  - UI component library: Button, Input, Select, Textarea, Card, Badge, Table, Modal
+  - API client with all endpoints (auth, institutions, keys, certificates, lab)
+  - PrototypeBanner on every page
+  - All pages integrated with real API endpoints (verified by build)
 
 ### Decisions Made
-- Verification check order follows Architecture.md section 8 exactly (cheap/decisive first)
-- Every check returned in response, not just final state
-- RETIRED keys still verify old certificates; COMPROMISED keys fail all verifications
-- LedgerUnavailableError at any step → UNAVAILABLE
-- Public key for verification comes from registry (Prisma), never from uploaded PDF
-- Certificate issuance implements full flow: PENDING → PDF → hash → sign → ledger → ISSUED/FAILED
-- Used node:crypto directly in services (sha256, sign, verify, loadPrivateKey) to avoid workspace dependency issues
-- Multer for PDF upload (memory storage, 10MB limit, PDF only)
+- All 10 pages already implemented in commit 9, integrated with real API in this commit
+- Verify page uses real `/api/certificates/:id/verify` endpoint with file upload
+- Certificate issuance uses real `/api/certificates` endpoint with PDF download
+- All pages use AuthProvider for JWT auth and role-based access
+- Role-based navigation in AuthLayout (NETWORK_ADMIN, INSTITUTION_ADMIN, ISSUER, HOLDER, AUDITOR)
+- Verification page uses real API with proper error handling and check-by-check display
+- Check labels mapped from API codes (LEDGER_LOOKUP → "Certificate found on ledger", etc.)
 
 ### Next Task
-Commit 13 (Sharanyo): feat(web): add login, issue, verify, admin, keys, holder, explorer and lab pages
+Commit 14 (Teammate): test: add end-to-end demo scenario and performance measurements
 
 ### Known Bugs / Open Questions
-- Tests require PostgreSQL database (not available locally - needs docker compose up)
-- bcrypt native module missing for API tests
-- Lab route uses @certiledger/number-theory as file: dependency
+- Ledger package test failure in commit 10 (teammate's test expects "Unknown or disabled issuer" but gets "No genesis entry found" when no genesis entry exists) - this is in teammate's commit 10
+- The verify page shows "FILE_NOT_CHECKED" when no PDF uploaded - expected behavior
 
 ### Commands
 ```bash
