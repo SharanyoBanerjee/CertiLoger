@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, type Request } from 'express';
 import { z } from 'zod';
 import { validate } from '../middleware/validate.js';
 import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth.js';
@@ -16,13 +16,18 @@ import {
 import { AppError } from '../middleware/errors.js';
 import multer from 'multer';
 
+// Extend Express Request for multer file
+interface MulterRequest extends Request {
+  file?: Express.Multer.File;
+}
+
 const router = Router();
 
 // Multer for PDF upload (memory storage, max 10MB)
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 },
-  fileFilter: (_req, file, cb) => {
+  fileFilter: (_req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     if (file.mimetype === 'application/pdf') cb(null, true);
     else cb(new AppError('INVALID_FILE_TYPE', 400, 'Only PDF files are allowed'));
   },
@@ -144,7 +149,7 @@ router.get('/:id/file', requireAuth, async (req: AuthRequest, res, next) => {
 });
 
 // POST /api/certificates/:id/verify - Verify certificate (public, rate-limited, file optional)
-router.post('/:id/verify', upload.single('file'), async (req, res, next) => {
+router.post('/:id/verify', upload.single('file'), async (req: MulterRequest, res, next) => {
   try {
     const certificateId = req.params.id;
     if (!certificateId) {
