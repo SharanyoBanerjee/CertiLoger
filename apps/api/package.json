@@ -8,6 +8,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "vitest run",
+    "test:e2e": "tsx scripts/e2e-demo.ts",
+    "test:perf": "tsx scripts/performance.ts",
     "lint": "eslint src --ext ts",
     "format": "prettier --write src",
     "db:generate": "prisma generate --schema=../../prisma/schema.prisma",
