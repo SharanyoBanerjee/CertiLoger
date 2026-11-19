@@ -13,9 +13,9 @@
 | 9  | Sharanyo  | feat(pdf): add certificate template rendering and qr generation    | 5,8   | merged  |
 | 10 | Teammate  | feat(ledger): add ledger interface and hash-chained local ledger   | 5,8   | merged   |
 | 11 | Sharanyo  | feat(certificates): add certificate issuance with ledger commit    | 6,9,10| merged   |
-| 12 | Teammate  | feat(verify): add verification service and revocation              | 10,11 | in review |
+| 12 | Teammate  | feat(verify): add verification service and revocation              | 10,11 | merged   |
 | 13 | Sharanyo  | feat(web): add login, issue, verify, admin, keys, holder, explorer and lab pages | 11,12 | merged   |
-| 14 | Teammate  | test: add end-to-end demo scenario and performance measurements    | 13    | in review |
-| 15 | Sharanyo  | docs: add setup guide, security review and final report            | 14    | todo   |
+| 14 | Teammate  | test: add end-to-end demo scenario and performance measurements    | 13    | merged   |
+| 15 | Sharanyo  | docs: add setup guide, security review and final report            | 14    | merged   |
 
 Status values: todo / in review / merged. Update only your own rows.
